@@ -4,7 +4,7 @@ import 'react-sortable-tree/style.css'; // This only needs to be imported once i
 import { constructTree } from './toolbelt';
 
 
-const MIN_NUMBER_OF_PARENTS = 500;
+const MIN_NUMBER_OF_PARENTS = 20;
 const MAX_NUMBER_OF_CHILDREN = 15;
 const MAX_DEEPNESS = 4;
 const Nodes = constructTree(MAX_DEEPNESS, MAX_NUMBER_OF_CHILDREN ,MIN_NUMBER_OF_PARENTS);
@@ -20,13 +20,15 @@ export default class Tree extends Component {
     super(props);
 
     this.state = {
+      selectedNodes: [],
       searchString: '',
       searchFocusIndex: 0,
       searchFoundCount: null,
       treeData: Nodes,
-      treeData2: [{ title: 'Chicken', children: [{ title: 'Egg' }] }],
     };
   }
+
+
 
   render() {
     if (this.state.nodes){
@@ -54,8 +56,44 @@ export default class Tree extends Component {
             ? (searchFocusIndex + 1) % searchFoundCount
             : 0,
       });
+
+    const handleAddSelected = (node) => {
+      console.log("Selected ", node)
+      let updatedSelectedNodes = this.state.selectedNodes.slice();
+      if (updatedSelectedNodes.indexOf(node) == -1) {
+        updatedSelectedNodes.push(node);
+      }
+      this.setState({
+        selectedNodes: updatedSelectedNodes
+      })
+    }  
+
+    const handleDeleteSelected = (node) => {
+      let updatedSelectedNodes = this.state.selectedNodes.slice();
+      let deleteAtIndex = updatedSelectedNodes.indexOf(node);
+      updatedSelectedNodes.splice(deleteAtIndex,1);
+      console.log("Deleting ", node, " at index", deleteAtIndex)
+      this.setState({
+        selectedNodes: updatedSelectedNodes
+      })
+
+    }
+
+    const selectedNodesDisplay = this.state.selectedNodes.map(node => {
+      return (
+        <span 
+          key={node.id} 
+          onClick={() => handleDeleteSelected(node)}>
+          <small><strong>  -  {node.title}   - </strong></small>
+        </span>
+        )
+    })
+
     return (
       <div>
+      <hr></hr>
+      {(this.state.selectedNodes.length > 0) ? <div>{selectedNodesDisplay}</div> : <p>No Nodes Selected</p>}
+      <hr></hr>
       <div>Number of Nodes: {totalNumberOfNodes}</div>
       <form
           style={{ display: 'inline-block' }}
@@ -100,37 +138,32 @@ export default class Tree extends Component {
         <div style={{ height: 600 }}>
           <SortableTree
             treeData={this.state.treeData}
-            canDrop={false}
             onChange={treeData => this.setState({ treeData })}
-
-            // Custom comparison for matching during search.
-            // This is optional, and defaults to a case sensitive search of
-            // the title and subtitle values.
-            // see `defaultSearchMethod` in https://github.com/frontend-collective/react-sortable-tree/blob/master/src/utils/default-handlers.js
             searchMethod={customSearchMethod}
-            //
-            // The query string used in the search. This is required for searching.
             searchQuery={searchString}
-            //
-            // When matches are found, this property lets you highlight a specific
-            // match and scroll to it. This is optional.
             searchFocusOffset={searchFocusIndex}
-            //
-            // This callback returns the matches from the search,
-            // including their `node`s, `treeIndex`es, and `path`s
-            // Here I just use it to note how many matches were found.
-            // This is optional, but without it, the only thing searches
-            // do natively is outline the matching nodes.
             searchFinishCallback={matches =>
               this.setState({
                 searchFoundCount: matches.length,
                 searchFocusIndex:
                   matches.length > 0 ? searchFocusIndex % matches.length : 0,
               })
-            }
+            } 
+            generateNodeProps={({ node }) => ({
+              buttons: [
+                <button
+                  onClick={() => handleAddSelected(node)}
+                >Select</button>
+              ],
+            })}
+          
+          
+          
           />
         </div>
       </div>
     );
   }
 }
+
+
