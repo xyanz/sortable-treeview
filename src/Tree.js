@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
-import SortableTree from 'react-sortable-tree';
+import SortableTree, {defaultGetNodeKey} from 'react-sortable-tree';
 import 'react-sortable-tree/style.css'; // This only needs to be imported once in your app
 import { constructTree } from './toolbelt';
+import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+import MaterialIcon, {colorPallet} from 'material-icons-react';
 
 
 const MIN_NUMBER_OF_PARENTS = 20;
@@ -31,9 +33,6 @@ export default class Tree extends Component {
 
 
   render() {
-    if (this.state.nodes){
-      console.log(this.state.nodes)
-    }
     const { searchString, searchFocusIndex, searchFoundCount } = this.state;
 
     // Case insensitive search of `node.title`
@@ -58,7 +57,7 @@ export default class Tree extends Component {
       });
 
     const handleAddSelected = (node) => {
-      console.log("Selected ", node)
+      console.log("Adding ", node)
       let updatedSelectedNodes = this.state.selectedNodes.slice();
       if (updatedSelectedNodes.indexOf(node) == -1) {
         updatedSelectedNodes.push(node);
@@ -88,79 +87,79 @@ export default class Tree extends Component {
         </span>
         )
     })
-
     return (
       <div>
-      <hr></hr>
-      {(this.state.selectedNodes.length > 0) ? <div>{selectedNodesDisplay}</div> : <p>No Nodes Selected</p>}
-      <hr></hr>
-      <div>Number of Nodes: {totalNumberOfNodes}</div>
-      <form
-          style={{ display: 'inline-block' }}
-          onSubmit={event => {
-            event.preventDefault();
-          }}
-        >
-          <input
-            id="find-box"
-            type="text"
-            placeholder="Search..."
-            style={{ fontSize: '1rem' }}
-            value={searchString}
-            onChange={event =>
-              this.setState({ searchString: event.target.value })
-            }
-          />
-
-          <button
-            type="button"
-            disabled={!searchFoundCount}
-            onClick={selectPrevMatch}
+        <hr></hr>
+        {(this.state.selectedNodes.length > 0) ? <div>{selectedNodesDisplay}</div> : <p>No Nodes Selected</p>}
+        <hr></hr>
+        <div>Number of Nodes: {totalNumberOfNodes}<span className="mi mi-face"></span></div>
+        <form
+            style={{ display: 'inline-block' }}
+            onSubmit={event => {
+              event.preventDefault();
+            }}
           >
-            &lt;
-          </button>
+            <input
+              id="find-box"
+              type="text"
+              placeholder="Search..."
+              style={{ fontSize: '1rem' }}
+              value={searchString}
+              onChange={event =>
+                this.setState({ searchString: event.target.value })
+              }
+            />
 
-          <button
-            type="submit"
-            disabled={!searchFoundCount}
-            onClick={selectNextMatch}
-          >
-            &gt;
-          </button>
+            <button
+              type="button"
+              disabled={!searchFoundCount}
+              onClick={selectPrevMatch}
+            >
+              &lt;
+            </button>
 
-          <span>
-            &nbsp;
-            {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
-            &nbsp;/&nbsp;
-            {searchFoundCount || 0}
-          </span>
-        </form>
-        <div style={{ height: 600 }}>
-          <SortableTree
-            treeData={this.state.treeData}
-            onChange={treeData => this.setState({ treeData })}
-            searchMethod={customSearchMethod}
-            searchQuery={searchString}
-            searchFocusOffset={searchFocusIndex}
-            searchFinishCallback={matches =>
-              this.setState({
-                searchFoundCount: matches.length,
-                searchFocusIndex:
-                  matches.length > 0 ? searchFocusIndex % matches.length : 0,
-              })
-            } 
-            generateNodeProps={({ node }) => ({
-              buttons: [
-                <button
-                  onClick={() => handleAddSelected(node)}
-                >Select</button>
-              ],
+            <button
+              type="submit"
+              disabled={!searchFoundCount}
+              onClick={selectNextMatch}
+            >
+              &gt;
+            </button>
+
+            <span>
+              &nbsp;
+              {searchFoundCount > 0 ? searchFocusIndex + 1 : 0}
+              &nbsp;/&nbsp;
+              {searchFoundCount || 0}
+            </span>
+          </form>
+          <div style={{ height: 600 }}>
+            <SortableTree
+              canDrag={false}
+              theme={FileExplorerTheme}
+              treeData={this.state.treeData}
+              onChange={treeData => this.setState({ treeData })}
+              searchMethod={customSearchMethod}
+              searchQuery={searchString}
+              searchFocusOffset={searchFocusIndex}
+              searchFinishCallback={matches =>
+                this.setState({
+                  searchFoundCount: matches.length,
+                  searchFocusIndex:
+                    matches.length > 0 ? searchFocusIndex % matches.length : 0,
+                })
+              }
+              generateNodeProps={({ node }) => ({
+                buttons: [
+                  <span style={{backgroundColor: 'clear', marginLeft: '-15px'}}
+                    onClick={() => handleAddSelected(node)}
+                  ><MaterialIcon icon="save" size='tiny'/> </span>
+                ],
             })}
-          
-          
-          
-          />
-        </div>
+
+
+            />
+          </div>
       </div>
     );
   }
