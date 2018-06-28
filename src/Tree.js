@@ -149,13 +149,20 @@ export default class Tree extends Component {
                     matches.length > 0 ? searchFocusIndex % matches.length : 0,
                 })
               }
-              generateNodeProps={({ node }) => ({
+              generateNodeProps={({ node }) => {
+                return {
+                style: {
+                  fontFamily: 'monospace'
+                },
                 buttons: [
-                  <span style={{backgroundColor: 'clear', marginLeft: '-15px'}}
+                  <span style={{backgroundColor: 'clear', marginLeft: '-15px', cursor: 'pointer'}}
                     onClick={() => handleAddSelected(node)}
-                  ><MaterialIcon icon="save" size='tiny'/> </span>
+                  >
+                  {this.state.selectedNodes.includes(node) ? <MaterialIcon icon="star" size='16'/> : <MaterialIcon icon="star_border" size='16'/>}  
+                  </span>
                 ],
-            })}
+                }
+            }}
 
 
             />
