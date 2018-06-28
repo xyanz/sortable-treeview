@@ -3,9 +3,9 @@ import SortableTree, {defaultGetNodeKey} from 'react-sortable-tree';
 import 'react-sortable-tree/style.css'; // This only needs to be imported once in your app
 import { constructTree } from './toolbelt';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
-import MaterialIcon, {colorPallet} from 'material-icons-react';
 
 
+//Create sample data for testing
 const MIN_NUMBER_OF_PARENTS = 20;
 const MAX_NUMBER_OF_CHILDREN = 15;
 const MAX_DEEPNESS = 4;
@@ -13,8 +13,8 @@ const Nodes = constructTree(MAX_DEEPNESS, MAX_NUMBER_OF_CHILDREN ,MIN_NUMBER_OF_
 const getTotalNumberOfElements = (nodes, counter = 0) => {
   return counter + nodes.length + nodes.reduce((acc, n) => getTotalNumberOfElements(n.children, acc) ,0)
 }
-
 const totalNumberOfNodes = getTotalNumberOfElements(Nodes);
+
 
 
 export default class Tree extends Component {
@@ -30,7 +30,15 @@ export default class Tree extends Component {
     };
   }
 
-
+  // Use this Lifecycle to seed state with online data
+  // componentWillMount = () => {
+  //   axios.get('data url')
+  //     .then(response => {
+  //       this.setState({
+  //         treeData: response.data
+  //       })
+  //     })
+  // }
 
   render() {
     const getNodeKey = ({ treeIndex }) => treeIndex;
@@ -57,6 +65,7 @@ export default class Tree extends Component {
             : 0,
       });
 
+    //Add selected node and check for redundancy
     const handleAddSelected = (node) => {
       console.log("Adding ", node)
       let updatedSelectedNodes = this.state.selectedNodes.slice();
@@ -68,6 +77,7 @@ export default class Tree extends Component {
       })
     }  
 
+    //Delete selected node
     const handleDeleteSelected = (node) => {
       let updatedSelectedNodes = this.state.selectedNodes.slice();
       let deleteAtIndex = updatedSelectedNodes.indexOf(node);
@@ -79,6 +89,7 @@ export default class Tree extends Component {
 
     }
 
+    //Show selectedNodes
     const selectedNodesDisplay = this.state.selectedNodes.map(node => {
       return (
         <span 
@@ -88,12 +99,13 @@ export default class Tree extends Component {
         </span>
         )
     })
+
     return (
       <div>
         <hr></hr>
         {(this.state.selectedNodes.length > 0) ? <div>{selectedNodesDisplay}</div> : <p>No Nodes Selected</p>}
         <hr></hr>
-        <div>Number of Nodes: {totalNumberOfNodes}<span className="mi mi-face"></span></div>
+        <div>Number of Nodes: {totalNumberOfNodes}</div>
         <form
             style={{ display: 'inline-block' }}
             onSubmit={event => {
@@ -150,9 +162,13 @@ export default class Tree extends Component {
                     matches.length > 0 ? searchFocusIndex % matches.length : 0,
                 })
               }
+              //Add click handler to node to enable select adding
               generateNodeProps={({ node }) => ({
                 title: (
-                  <span style={{fontFamily: 'monospace'}} onClick={() => handleAddSelected(node)}>{node.title}
+                  <span 
+                    style={{fontFamily: 'monospace'}} 
+                    onClick={() => handleAddSelected(node)}
+                    >{node.title}
                   </span>
                 )
             })}
