@@ -33,6 +33,7 @@ export default class Tree extends Component {
 
 
   render() {
+    const getNodeKey = ({ treeIndex }) => treeIndex;
     const { searchString, searchFocusIndex, searchFoundCount } = this.state;
 
     // Case insensitive search of `node.title`
@@ -149,20 +150,12 @@ export default class Tree extends Component {
                     matches.length > 0 ? searchFocusIndex % matches.length : 0,
                 })
               }
-              generateNodeProps={({ node }) => {
-                return {
-                style: {
-                  fontFamily: 'monospace'
-                },
-                buttons: [
-                  <span style={{backgroundColor: 'clear', marginLeft: '-15px', cursor: 'pointer'}}
-                    onClick={() => handleAddSelected(node)}
-                  >
-                  {this.state.selectedNodes.includes(node) ? <MaterialIcon icon="star" size='16'/> : <MaterialIcon icon="star_border" size='16'/>}  
+              generateNodeProps={({ node }) => ({
+                title: (
+                  <span style={{fontFamily: 'monospace'}} onClick={() => handleAddSelected(node)}>{node.title}
                   </span>
-                ],
-                }
-            }}
+                )
+            })}
 
 
             />
