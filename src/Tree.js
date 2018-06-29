@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import SortableTree, {defaultGetNodeKey} from 'react-sortable-tree';
+import SortableTree, {defaultGetNodeKey, toggleExpandedForAll} from 'react-sortable-tree';
 import 'react-sortable-tree/style.css'; // This only needs to be imported once in your app
 import { constructTree } from './toolbelt';
 import FileExplorerTheme from 'react-sortable-tree-theme-file-explorer';
+
 
 
 //Create sample data for testing
@@ -27,11 +28,20 @@ export default class Tree extends Component {
       searchFocusIndex: 0,
       searchFoundCount: null,
       treeData: Nodes,
+      instanceProps: {}
     };
   }
+  // static getDerivedStateFromProps(nextProps, prevState) {
+  //   console.log("getDerivedStae ", nextProps, prevState);
+  //   const { instanceProps } = prevState;
+  //   const newState = {};
+  //   instanceProps.treeData = nextProps.treeData;
+  //   newState.instanceProps = instanceProps;
+  //   return newState;
+  // }
 
   // Use this Lifecycle to seed state with online data
-  // componentWillMount = () => {
+  // componentWillMount () => {
   //   axios.get('data url')
   //     .then(response => {
   //       this.setState({
@@ -41,6 +51,7 @@ export default class Tree extends Component {
   // }
 
   render() {
+
     const getNodeKey = ({ treeIndex }) => treeIndex;
     const { searchString, searchFocusIndex, searchFoundCount } = this.state;
 
@@ -100,12 +111,43 @@ export default class Tree extends Component {
         )
     })
 
+    const expandAll = () =>{
+      this.setState({
+        treeData: toggleExpandedForAll({
+          treeData: this.state.treeData,
+          expanded: true,
+        }),
+      });
+    }
+
+    const collapseAll = () =>{
+      this.setState({
+        treeData: toggleExpandedForAll({
+          treeData: this.state.treeData,
+          expanded: false,
+        }),
+      });
+    }
+  
+
+
+
     return (
       <div>
         <hr></hr>
         {(this.state.selectedNodes.length > 0) ? <div>{selectedNodesDisplay}</div> : <p>No Nodes Selected</p>}
         <hr></hr>
         <div>Number of Nodes: {totalNumberOfNodes}</div>
+        <div style={{textAlign: 'left'}}>
+          <button 
+            onClick={expandAll}>
+            Expand All
+            </button>
+            <button 
+            onClick={collapseAll}>
+            Collapse All
+            </button>
+        </div>
         <form
             style={{ display: 'inline-block' }}
             onSubmit={event => {
